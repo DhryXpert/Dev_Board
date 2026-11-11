@@ -1,1 +1,64 @@
+@import url("https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap");
 @import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --font-display: "Poppins", sans-serif;
+  --color-primary: #875cf5;
+}
+
+@layer base {
+  html {
+    font-family: var(--font-display);
+    transition: background-color 0.3s ease, color 0.3s ease;
+  }
+
+  body {
+    background-color: #fcfbfc;
+    color: #1e293b;
+    overflow-x: hidden;
+  }
+
+  html.dark body,
+  html[data-theme="dark"] body {
+    background-color: #0f0f14;
+    color: #e2e2e8;
+  }
+
+  /* Custom Clean Scrollbar */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: #fcfbfc;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #e2e8f0;
+    border-radius: 3px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: #cbd5e1;
+  }
+
+  html.dark ::-webkit-scrollbar-track {
+    background: #0f0f14;
+  }
+  html.dark ::-webkit-scrollbar-thumb {
+    background: #252536;
+  }
+}
+
+/* Zen Wealth style utility classes with Dark Mode support */
+.input-box {
+  @apply w-full flex items-center justify-between gap-3 text-sm text-slate-900 dark:text-slate-100 bg-slate-100 dark:bg-[#181822] rounded-lg px-4 py-3 mb-4 mt-2 border border-slate-200 dark:border-slate-800 outline-none transition focus-within:border-purple-500 focus-within:bg-white dark:focus-within:bg-[#1e1e2c] focus-within:ring-2 focus-within:ring-purple-500/10;
+}
+
+.btn-primary {
+  @apply w-full text-sm font-medium text-white bg-purple-600 shadow-lg shadow-purple-600/20 p-3 rounded-lg my-2 hover:bg-purple-700 transition cursor-pointer disabled:bg-slate-300 dark:disabled:bg-slate-800 disabled:text-slate-500 disabled:cursor-not-allowed flex items-center justify-center gap-2;
+}
+
+.card {
+  @apply bg-white dark:bg-[#161620] p-6 rounded-xl shadow-sm border border-gray-100 dark:border-slate-800/80;
+}
