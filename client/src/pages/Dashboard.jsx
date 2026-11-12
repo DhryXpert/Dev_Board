@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import ThemeToggle from "../components/ThemeToggle";
 import Modal from "../components/Modal";
@@ -18,6 +19,7 @@ import {
 
 export default function Dashboard() {
   const { user, logout } = useAuth();
+  const navigate = useNavigate();
 
   const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -273,7 +275,7 @@ export default function Dashboard() {
                   setIsMembersModalOpen(true);
                 }}
                 onClick={() => {
-                  alert(`Opening "${project.title}"! Kanban Board is next on Day 4.`);
+                  navigate(`/projects/${project._id}`);
                 }}
               />
             ))}
