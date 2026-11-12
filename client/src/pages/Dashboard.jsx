@@ -1,13 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-import ThemeToggle from "../components/ThemeToggle";
+import AppLayout from "../components/AppLayout";
+import Breadcrumbs from "../components/Breadcrumbs";
 import Modal from "../components/Modal";
 import ProjectCard from "../components/ProjectCard";
 import API from "../api/axios";
 import {
-  LogOut,
-  Kanban,
   Plus,
   FolderGit2,
   Search,
@@ -15,10 +14,12 @@ import {
   Trash2,
   AlertCircle,
   Loader2,
+  Layers,
+  Sparkles,
 } from "lucide-react";
 
 export default function Dashboard() {
-  const { user, logout } = useAuth();
+  const { user } = useAuth();
   const navigate = useNavigate();
 
   const [projects, setProjects] = useState([]);
@@ -136,53 +137,18 @@ export default function Dashboard() {
   );
 
   return (
-    <div className="min-h-screen bg-[#fcfbfc] dark:bg-[#0f0f14] text-slate-800 dark:text-slate-100 flex flex-col font-['Poppins'] transition-colors duration-300">
-      {/* Top Navbar */}
-      <header className="bg-white dark:bg-[#161620] border-b border-gray-100 dark:border-slate-800/80 py-3.5 px-6 sm:px-10 sticky top-0 z-30 flex items-center justify-between transition-colors duration-300">
-        <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-xl bg-purple-600 flex items-center justify-center text-white shadow-md shadow-purple-600/30">
-            <Kanban size={18} />
-          </div>
-          <h2 className="text-lg font-bold text-slate-900 dark:text-white tracking-tight">
-            Dev Board
-          </h2>
-        </div>
+    <AppLayout projects={projects}>
+      <div className="max-w-6xl mx-auto">
+        <Breadcrumbs items={[{ label: "Projects" }]} />
 
-        <div className="flex items-center gap-3 sm:gap-4">
-          <ThemeToggle />
-
-          <div className="flex items-center gap-2.5 px-3 py-1.5 bg-slate-50 dark:bg-[#1f1f2e] border border-slate-200/70 dark:border-slate-700/60 rounded-lg text-xs">
-            <div className="w-6 h-6 rounded-full bg-purple-100 dark:bg-purple-900/40 text-purple-700 dark:text-purple-300 font-bold flex items-center justify-center text-xs">
-              {user?.name?.[0]?.toUpperCase() || "U"}
-            </div>
-            <span className="text-slate-800 dark:text-slate-200 font-semibold">
-              {user?.name}
-            </span>
-            <span className="px-1.5 py-0.5 rounded bg-purple-50 dark:bg-purple-950/60 text-purple-600 dark:text-purple-400 font-medium text-[10px] border border-purple-200 dark:border-purple-800 uppercase">
-              {user?.role}
-            </span>
-          </div>
-
-          <button
-            onClick={logout}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-gray-700 dark:text-slate-300 hover:text-red-600 dark:hover:text-red-400 bg-gray-50 dark:bg-[#1f1f2e] hover:bg-red-50 dark:hover:bg-red-950/30 border border-gray-200/60 dark:border-slate-700/60 transition cursor-pointer"
-          >
-            <LogOut size={14} />
-            <span className="hidden sm:inline">Logout</span>
-          </button>
-        </div>
-      </header>
-
-      {/* Main Container */}
-      <main className="flex-1 max-w-6xl w-full mx-auto p-6 sm:p-10">
         {/* Header Actions */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
           <div>
             <h1 className="text-2xl font-bold text-slate-900 dark:text-white">
-              Projects
+              Projects Overview
             </h1>
             <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-              Manage your software projects, collaborate with teams & track issues
+              Manage all software projects and collaborate with team members
             </p>
           </div>
 
@@ -281,7 +247,7 @@ export default function Dashboard() {
             ))}
           </div>
         )}
-      </main>
+      </div>
 
       {/* Modal 1: Create / Edit Project */}
       <Modal
@@ -442,6 +408,6 @@ export default function Dashboard() {
           </div>
         </div>
       </Modal>
-    </div>
+    </AppLayout>
   );
 }

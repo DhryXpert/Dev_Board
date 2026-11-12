@@ -1,19 +1,17 @@
 import React, { useState, useEffect } from "react";
-import { useParams, useNavigate, Link } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-import ThemeToggle from "../components/ThemeToggle";
+import AppLayout from "../components/AppLayout";
+import Breadcrumbs from "../components/Breadcrumbs";
 import Modal from "../components/Modal";
 import TicketCard from "../components/TicketCard";
 import API from "../api/axios";
 import {
-  ArrowLeft,
   Plus,
   Search,
   Filter,
-  FolderGit2,
   AlertCircle,
   Loader2,
-  Users,
   Kanban,
   CheckCircle2,
   Clock,
@@ -25,6 +23,7 @@ export default function ProjectDetails() {
   const navigate = useNavigate();
   const { user } = useAuth();
 
+  const [allProjects, setAllProjects] = useState([]);
   const [project, setProject] = useState(null);
   const [tickets, setTickets] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -50,10 +49,12 @@ export default function ProjectDetails() {
   const fetchData = async () => {
     try {
       setLoading(true);
-      const [projectRes, ticketsRes] = await Promise.all([
+      const [allProjectsRes, projectRes, ticketsRes] = await Promise.all([
+        API.get("/projects"),
         API.get(`/projects/${projectId}`),
         API.get(`/tickets/project/${projectId}`),
       ]);
+      setAllProjects(allProjectsRes.data);
       setProject(projectRes.data);
       setTickets(ticketsRes.data);
     } catch (err) {
@@ -162,7 +163,6 @@ export default function ProjectDetails() {
     return matchesSearch && matchesStatus && matchesPriority;
   });
 
-  // Simple stats for project header
   const todoCount = tickets.filter((t) => t.status === "To Do").length;
   const inProgressCount = tickets.filter((t) => t.status === "In Progress").length;
   const doneCount = tickets.filter((t) => t.status === "Done").length;
@@ -176,50 +176,35 @@ export default function ProjectDetails() {
   }
 
   return (
-    <div className="min-h-screen bg-[#fcfbfc] dark:bg-[#0f0f14] text-slate-800 dark:text-slate-100 flex flex-col font-['Poppins'] transition-colors duration-300">
-      {/* Top Navigation */}
-      <header className="bg-white dark:bg-[#161620] border-b border-gray-100 dark:border-slate-800/80 py-3.5 px-6 sm:px-10 sticky top-0 z-30 flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <Link
-            to="/dashboard"
-            className="p-1.5 rounded-lg text-slate-500 hover:text-purple-600 hover:bg-slate-50 dark:hover:bg-slate-800 transition"
-          >
-            <ArrowLeft size={18} />
-          </Link>
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-purple-600 flex items-center justify-center text-white shadow-md shadow-purple-600/30">
-              <FolderGit2 size={16} />
-            </div>
-            <div>
-              <h2 className="text-sm font-bold text-slate-900 dark:text-white leading-tight">
-                {project?.title}
-              </h2>
-              <span className="text-[10px] text-slate-400">Project Workspace</span>
-            </div>
-          </div>
-        </div>
+    <AppLayout
+      projects={allProjects}
+      currentProjectId={projectId}
+      onSelectProject={(id) => navigate(`/projects/${id}`)}
+    >
+      <div className="max-w-6xl mx-auto">
+        <Breadcrumbs
+          items={[
+            { label: "Projects", path: "/dashboard" },
+            { label: project?.title || "Project" },
+          ]}
+        />
 
-        <div className="flex items-center gap-3">
-          <ThemeToggle />
-          <button
-            onClick={openCreateModal}
-            className="btn-primary !w-auto !py-2 !px-3.5 !my-0 text-xs shadow-md shadow-purple-600/20"
-          >
-            <Plus size={15} />
-            <span className="hidden sm:inline">New Ticket</span>
-          </button>
-        </div>
-      </header>
-
-      {/* Main Container */}
-      <main className="flex-1 max-w-6xl w-full mx-auto p-6 sm:p-10">
         {/* Project Overview Card */}
         <div className="card mb-6">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
-              <h1 className="text-xl font-bold text-slate-900 dark:text-white">
-                {project?.title}
-              </h1>
+              <div className="flex items-center gap-3">
+                <h1 className="text-xl font-bold text-slate-900 dark:text-white">
+                  {project?.title}
+                </h1>
+                <button
+                  onClick={openCreateModal}
+                  className="btn-primary !w-auto !py-1.5 !px-3 !my-0 text-xs shadow-md shadow-purple-600/20 flex items-center gap-1.5"
+                >
+                  <Plus size={14} />
+                  <span>New Ticket</span>
+                </button>
+              </div>
               <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 max-w-xl">
                 {project?.description || "No project description provided."}
               </p>
@@ -267,7 +252,6 @@ export default function ProjectDetails() {
           </div>
 
           <div className="flex items-center gap-2 self-end md:self-auto">
-            {/* Status Filter */}
             <select
               value={selectedStatus}
               onChange={(e) => setSelectedStatus(e.target.value)}
@@ -279,7 +263,6 @@ export default function ProjectDetails() {
               <option value="Done">Done</option>
             </select>
 
-            {/* Priority Filter */}
             <select
               value={selectedPriority}
               onChange={(e) => setSelectedPriority(e.target.value)}
@@ -329,7 +312,7 @@ export default function ProjectDetails() {
             ))}
           </div>
         )}
-      </main>
+      </div>
 
       {/* Ticket Modal (Create / Edit) */}
       <Modal
@@ -451,7 +434,6 @@ export default function ProjectDetails() {
           </div>
         </form>
       </Modal>
-    </div>
+    </AppLayout>
   );
 }
-
