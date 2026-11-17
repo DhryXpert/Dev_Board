@@ -1,163 +1,170 @@
-# 🚀 Dev Board — Agile Project Management & Bug Tracker
+# Dev Board — Agile Project Management & Issue Tracker
 
-A modern, full-stack Jira and Linear alternative built with the **MERN stack** (MongoDB, Express, React, Node.js) and Tailwind CSS. Designed with an agile workflow in mind, featuring interactive **Kanban Drag-and-Drop**, threaded comments, role-based project collaboration, and custom dark/light themes inspired by modern SaaS applications.
+A modern, full-stack project management platform built with the MERN stack (MongoDB, Express, React, Node.js) and Tailwind CSS. Designed for agile teams, featuring Kanban drag-and-drop workflows, threaded discussions, role-based access control, and dark/light display modes.
 
 ---
 
-## ✨ Features
+## Features
 
-- **🔐 Robust Authentication & Security**:
-  - Secure user registration and login with JWT and `bcryptjs` password hashing.
-  - Protected API routes and client-side route guards.
-  - Multi-theme support (Dark/Light) with instant toggle and local storage persistence.
+- **Authentication & Security**:
+  - Stateless authentication with JSON Web Tokens (JWT) and `bcryptjs` password hashing.
+  - Protected API routes and client-side routing guards.
+  - Dark and light theme modes with local storage persistence.
 
-- **📁 Project Management & Workspaces**:
-  - Create, view, edit, and delete software projects.
-  - Add/remove team members by email directly to specific project workspaces.
-  - Dynamic Project Switcher dropdown in the top navigation bar.
+- **Project Workspaces**:
+  - Full CRUD operations for software projects.
+  - Team collaboration: invite and remove project members by email.
+  - Project switcher dropdown in navigation bar for fast context switching.
 
-- **📋 Interactive Kanban Board (Drag & Drop)**:
-  - Three distinct agile columns: **To Do**, **In Progress**, and **Done**.
-  - Powered by `@hello-pangea/dnd` for smooth, realistic card lifting with elevation and rotation.
-  - Optimistic UI updates with instant persistence to MongoDB.
-  - Dual view modes: **Kanban Board View** and **Grid Card View**.
+- **Interactive Kanban Board**:
+  - Three standard workflow states: To Do, In Progress, and Done.
+  - Smooth drag-and-drop powered by `@hello-pangea/dnd`.
+  - Optimistic UI state updates synchronized with MongoDB.
+  - Dual view toggle: Kanban Board View and Grid Card View.
 
-- **💬 Real-Time Threaded Comments**:
-  - Threaded discussion stream under each ticket modal.
-  - Author avatars, names, and relative timestamps.
+- **Threaded Discussions**:
+  - Discussion streams within each ticket modal.
+  - Author attribution, initials badge, and relative timestamps.
   - Author-only comment deletion permissions.
 
-- **🔍 Advanced Multi-Filter & Search**:
-  - Instant client and server search across ticket titles and descriptions.
-  - Filter simultaneously by **Status**, **Priority** (Low, Medium, High, Critical), and **Assignee**.
+- **Search & Multi-Criteria Filtering**:
+  - Real-time search across ticket titles and descriptions.
+  - Multi-dimensional filters for Status, Priority (Low, Medium, High, Critical), and Assignee.
 
-- **🛡️ Role-Based Ticket Authorization**:
-  - Only Project Owners, Ticket Creators, or Assignees can edit/delete tickets.
-  - Safe, custom confirmation modal (`DeleteAlert`) before any destructive action.
+- **Role-Based Authorization**:
+  - Fine-grained permission model: only Project Owners, Ticket Creators, or Assignees can modify or remove tickets.
+  - Destructive actions safeguarded by a custom confirmation dialog.
 
-- **🔔 Toast Notification System**:
-  - Sleek, unobtrusive pop-up toasts for success, error, and info updates.
+- **Notification System**:
+  - Global toast notification manager for success, info, and error alerts.
 
 ---
 
-## 🧰 Tech Stack
+## Tech Stack
 
 ### Frontend
-- **React.js 19** + **Vite 8**
-- **Tailwind CSS v4** + Custom Glassmorphism Theme (Zen Wealth design system)
-- **React Router Dom v7** (Client-side routing)
-- **`@hello-pangea/dnd`** (Accessible drag-and-drop Kanban)
-- **Lucide React** (Clean, consistent iconography)
-- **Axios** (With interceptors for automatic JWT attachment)
+- React 19
+- Vite 8
+- Tailwind CSS v4
+- React Router Dom v7
+- `@hello-pangea/dnd`
+- Lucide React
+- Axios (configured with request interceptors for bearer tokens)
+- `@vercel/speed-insights`
 
 ### Backend
-- **Node.js** + **Express.js 5** (RESTful API architecture)
-- **MongoDB Atlas** + **Mongoose 9** (Database modeling & relationships)
-- **JSON Web Tokens (JWT)** + **bcryptjs** (Stateless authentication)
-- **CORS** & **Dotenv** (Security & environment management)
+- Node.js
+- Express.js 5
+- MongoDB Atlas & Mongoose 9
+- JSON Web Tokens (jsonwebtoken)
+- bcryptjs
+- CORS & Dotenv
 
 ---
 
-## 📁 Project Architecture
+## Project Structure
 
 ```text
 Dev_Board/
 ├── client/                     # Frontend Application (React + Vite)
-│   ├── public/                 # Favicons & Brand Assets (32x32, 64x64, 180x180, 512x512)
+│   ├── public/                 # Static assets and routing configuration (_redirects)
 │   ├── src/
 │   │   ├── api/                # Axios instance configuration
-│   │   ├── components/         # Reusable UI (AppLayout, KanbanBoard, Modal, DeleteAlert, etc.)
+│   │   ├── components/         # Reusable UI (AppLayout, KanbanBoard, Modal, DeleteAlert)
 │   │   ├── context/            # AuthContext, ThemeContext, ToastContext
 │   │   ├── pages/              # Login, Register, Dashboard, ProjectDetails
-│   │   ├── App.jsx             # Routes & Global Providers
-│   │   └── index.css           # Tailwind v4 configuration & theme styles
+│   │   ├── App.jsx             # Router and global context providers
+│   │   └── index.css           # Global Tailwind CSS and design tokens
+│   ├── vercel.json             # Vercel SPA routing rewrite rules
 │   └── package.json
 │
 ├── server/                     # Backend Application (Node + Express)
-│   ├── config/                 # Database connection (Mongoose)
+│   ├── config/                 # Database configuration (Mongoose connection caching)
 │   ├── controllers/            # Auth, Project, Ticket, Comment business logic
-│   ├── middleware/             # JWT auth & route protection
-│   ├── models/                 # User, Project, Ticket, Comment Mongoose schemas
-│   ├── routes/                 # Express API routes (/api/auth, /api/projects, etc.)
-│   ├── server.js               # Express application entry point
+│   ├── middleware/             # JWT authentication and authorization guards
+│   ├── models/                 # User, Project, Ticket, Comment schemas
+│   ├── routes/                 # Express API endpoints
+│   ├── server.js               # Application entry point and serverless export
+│   ├── vercel.json             # Vercel serverless function configuration
 │   └── package.json
 │
-└── Docs/                       # Project specifications, roadmap, and checklists
+└── Docs/                       # Technical specifications and planning documents
 ```
 
 ---
 
-## 🚀 Getting Started Locally
+## Local Development Setup
 
 ### Prerequisites
-- [Node.js](https://nodejs.org/) (v18 or higher recommended)
-- [MongoDB Atlas](https://www.mongodb.com/atlas) account (or local MongoDB)
+- Node.js (v18 or higher)
+- MongoDB Atlas connection string (or local MongoDB instance)
 
-### 1. Clone the repository
+### 1. Clone Repository
 ```bash
-git clone https://github.com/DhairyaKhatri07/Dev_Board.git
+git clone https://github.com/DhryXpert/Dev_Board.git
 cd Dev_Board
 ```
 
-### 2. Backend Setup
-1. Navigate to the `server/` directory:
+### 2. Backend Configuration
+1. Navigate to the server folder:
    ```bash
    cd server
    npm install
    ```
-2. Create a `.env` file inside `server/`:
+2. Configure `.env` in the `server/` directory:
    ```env
    PORT=5000
-   MONGO_URI=your_mongodb_atlas_connection_string
+   MONGODB_URI=your_mongodb_connection_string
    JWT_SECRET=your_jwt_secret_key
    ```
-3. Start the backend development server:
+3. Start the server:
    ```bash
    npm run dev
    ```
-   The backend will be live at `http://localhost:5000`.
+   API will be available at `http://localhost:5000`.
 
-### 3. Frontend Setup
-1. Open a new terminal and navigate to the `client/` directory:
+### 3. Frontend Configuration
+1. Open a new terminal session and navigate to the client folder:
    ```bash
-   cd ../client
+   cd client
    npm install
    ```
-2. Create a `.env` file inside `client/`:
+2. Configure `.env` in the `client/` directory:
    ```env
    VITE_API_URL=http://localhost:5000/api
    ```
-3. Start the Vite dev server:
+3. Start the development server:
    ```bash
    npm run dev
    ```
-   Open `http://localhost:5173` in your browser.
+   Client will be available at `http://localhost:5173`.
 
 ---
 
-## 🌐 API Overview
+## API Reference
 
-| Method | Endpoint | Description | Protected |
+| Method | Endpoint | Description | Access |
 | :--- | :--- | :--- | :--- |
-| `POST` | `/api/auth/register` | Register a new user | No |
-| `POST` | `/api/auth/login` | Login user & get JWT | No |
-| `GET` | `/api/auth/me` | Get authenticated user profile | Yes |
-| `POST` | `/api/projects` | Create a new project | Yes |
-| `GET` | `/api/projects` | List all projects for user | Yes |
-| `GET` | `/api/projects/:id` | Get single project details | Yes |
-| `PUT` | `/api/projects/:id` | Update project title / description | Yes (Owner) |
-| `DELETE` | `/api/projects/:id` | Delete project | Yes (Owner) |
-| `POST` | `/api/projects/:id/members` | Add project member by email | Yes (Owner) |
-| `DELETE` | `/api/projects/:id/members/:memberId` | Remove member from project | Yes (Owner) |
-| `POST` | `/api/tickets` | Create a ticket | Yes |
-| `GET` | `/api/tickets/project/:projectId` | Get filtered tickets for a project | Yes |
-| `PUT` | `/api/tickets/:id` | Update ticket / change status | Yes (Owner/Creator/Assignee) |
-| `DELETE` | `/api/tickets/:id` | Delete ticket | Yes (Owner/Creator) |
-| `POST` | `/api/comments` | Post comment on a ticket | Yes |
-| `GET` | `/api/comments/ticket/:ticketId` | Get comment thread for ticket | Yes |
-| `DELETE` | `/api/comments/:id` | Delete comment | Yes (Author) |
+| `POST` | `/api/auth/register` | Register a new user | Public |
+| `POST` | `/api/auth/login` | Authenticate user and issue JWT | Public |
+| `GET` | `/api/auth/me` | Retrieve authenticated user profile | Private |
+| `POST` | `/api/projects` | Create a new project | Private |
+| `GET` | `/api/projects` | List projects for authenticated user | Private |
+| `GET` | `/api/projects/:id` | Retrieve single project details | Private |
+| `PUT` | `/api/projects/:id` | Update project metadata | Private (Owner) |
+| `DELETE` | `/api/projects/:id` | Delete project and associated records | Private (Owner) |
+| `POST` | `/api/projects/:id/members` | Add project collaborator by email | Private (Owner) |
+| `DELETE` | `/api/projects/:id/members/:memberId` | Remove project collaborator | Private (Owner) |
+| `POST` | `/api/tickets` | Create a new ticket | Private |
+| `GET` | `/api/tickets/project/:projectId` | Retrieve tickets for a project with filters | Private |
+| `PUT` | `/api/tickets/:id` | Update ticket details or workflow status | Private (Owner/Creator/Assignee) |
+| `DELETE` | `/api/tickets/:id` | Delete ticket | Private (Owner/Creator) |
+| `POST` | `/api/comments` | Post a comment on a ticket | Private |
+| `GET` | `/api/comments/ticket/:ticketId` | Retrieve comment thread for a ticket | Private |
+| `DELETE` | `/api/comments/:id` | Delete comment | Private (Author) |
 
 ---
 
-## 📝 License
-This project is open-source and available under the [ISC License](LICENSE).
+## License
+
+This project is licensed under the ISC License.
