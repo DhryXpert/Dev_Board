@@ -5,6 +5,7 @@ import AppLayout from "../components/AppLayout";
 import Breadcrumbs from "../components/Breadcrumbs";
 import Modal from "../components/Modal";
 import TicketCard from "../components/TicketCard";
+import KanbanBoard from "../components/KanbanBoard";
 import API from "../api/axios";
 import {
   Plus,
@@ -16,6 +17,8 @@ import {
   CheckCircle2,
   Clock,
   ListTodo,
+  LayoutGrid,
+  Columns3,
 } from "lucide-react";
 
 export default function ProjectDetails() {
@@ -30,6 +33,7 @@ export default function ProjectDetails() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedStatus, setSelectedStatus] = useState("All");
   const [selectedPriority, setSelectedPriority] = useState("All");
+  const [viewMode, setViewMode] = useState("kanban"); // "kanban" or "grid"
 
   // Modal State
   const [isTicketModalOpen, setIsTicketModalOpen] = useState(false);
@@ -69,13 +73,13 @@ export default function ProjectDetails() {
   }, [projectId]);
 
   // Open Create Modal
-  const openCreateModal = () => {
+  const openCreateModal = (defaultStatus = "To Do") => {
     setEditingTicket(null);
     setTicketForm({
       title: "",
       description: "",
       priority: "Medium",
-      status: "To Do",
+      status: defaultStatus || "To Do",
       assignee: "",
     });
     setModalError("");
@@ -127,7 +131,45 @@ export default function ProjectDetails() {
     }
   };
 
-  // Handle Quick Status Change
+  // Drag and Drop End Handler
+  const handleDragEnd = async (result) => {
+    const { destination, source, draggableId } = result;
+
+    // Dropped outside a valid column
+    if (!destination) return;
+
+    // Dropped in the same column and same position
+    if (
+      destination.droppableId === source.droppableId &&
+      destination.index === source.index
+    ) {
+      return;
+    }
+
+    const targetStatus = destination.droppableId;
+    const ticketToMove = tickets.find((t) => t._id === draggableId);
+    if (!ticketToMove || ticketToMove.status === targetStatus) return;
+
+    // 1. Optimistic UI update: instant update for super snappy UX
+    const previousTickets = [...tickets];
+    setTickets((prev) =>
+      prev.map((t) =>
+        t._id === draggableId ? { ...t, status: targetStatus } : t
+      )
+    );
+
+    // 2. Persist status update to backend MongoDB API
+    try {
+      await API.put(`/tickets/${draggableId}`, { status: targetStatus });
+    } catch (err) {
+      console.error("Failed to persist ticket move", err);
+      // Rollback to previous state on failure
+      setTickets(previousTickets);
+      alert(err.response?.data?.message || "Failed to update ticket status on server");
+    }
+  };
+
+  // Handle Quick Status Change from Grid dropdown
   const handleStatusChange = async (ticketId, newStatus) => {
     try {
       const { data } = await API.put(`/tickets/${ticketId}`, { status: newStatus });
@@ -198,7 +240,7 @@ export default function ProjectDetails() {
                   {project?.title}
                 </h1>
                 <button
-                  onClick={openCreateModal}
+                  onClick={() => openCreateModal("To Do")}
                   className="btn-primary !w-auto !py-1.5 !px-3 !my-0 text-xs shadow-md shadow-purple-600/20 flex items-center gap-1.5"
                 >
                   <Plus size={14} />
@@ -235,7 +277,7 @@ export default function ProjectDetails() {
           </div>
         </div>
 
-        {/* Search & Filter Controls */}
+        {/* Search & Filter Controls + Kanban / Grid View Switcher */}
         <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3 mb-6">
           <div className="relative flex-1 max-w-md">
             <Search
@@ -251,18 +293,48 @@ export default function ProjectDetails() {
             />
           </div>
 
-          <div className="flex items-center gap-2 self-end md:self-auto">
-            <select
-              value={selectedStatus}
-              onChange={(e) => setSelectedStatus(e.target.value)}
-              className="text-xs bg-white dark:bg-[#161620] border border-gray-200 dark:border-slate-800 rounded-xl px-3 py-2 text-slate-700 dark:text-slate-300 outline-none cursor-pointer focus:border-purple-500"
-            >
-              <option value="All">All Statuses</option>
-              <option value="To Do">To Do</option>
-              <option value="In Progress">In Progress</option>
-              <option value="Done">Done</option>
-            </select>
+          <div className="flex items-center gap-2 self-end md:self-auto flex-wrap">
+            {/* View Switcher: Kanban vs Grid */}
+            <div className="flex items-center bg-slate-100 dark:bg-[#181824] p-1 rounded-xl border border-slate-200/80 dark:border-slate-800">
+              <button
+                onClick={() => setViewMode("kanban")}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition cursor-pointer ${
+                  viewMode === "kanban"
+                    ? "bg-white dark:bg-[#252536] text-purple-600 dark:text-purple-400 shadow-sm"
+                    : "text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200"
+                }`}
+              >
+                <Columns3 size={14} />
+                <span>Kanban</span>
+              </button>
+              <button
+                onClick={() => setViewMode("grid")}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition cursor-pointer ${
+                  viewMode === "grid"
+                    ? "bg-white dark:bg-[#252536] text-purple-600 dark:text-purple-400 shadow-sm"
+                    : "text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200"
+                }`}
+              >
+                <LayoutGrid size={14} />
+                <span>Grid</span>
+              </button>
+            </div>
 
+            {/* Status Filter (available in Grid mode) */}
+            {viewMode === "grid" && (
+              <select
+                value={selectedStatus}
+                onChange={(e) => setSelectedStatus(e.target.value)}
+                className="text-xs bg-white dark:bg-[#161620] border border-gray-200 dark:border-slate-800 rounded-xl px-3 py-2 text-slate-700 dark:text-slate-300 outline-none cursor-pointer focus:border-purple-500"
+              >
+                <option value="All">All Statuses</option>
+                <option value="To Do">To Do</option>
+                <option value="In Progress">In Progress</option>
+                <option value="Done">Done</option>
+              </select>
+            )}
+
+            {/* Priority Filter */}
             <select
               value={selectedPriority}
               onChange={(e) => setSelectedPriority(e.target.value)}
@@ -277,40 +349,51 @@ export default function ProjectDetails() {
           </div>
         </div>
 
-        {/* Tickets Grid */}
-        {filteredTickets.length === 0 ? (
-          <div className="card text-center py-16 flex flex-col items-center justify-center border-dashed border-gray-200 dark:border-slate-800">
-            <div className="w-12 h-12 rounded-2xl bg-purple-50 dark:bg-purple-950/40 text-purple-600 dark:text-purple-400 flex items-center justify-center mb-3">
-              <Kanban size={24} />
-            </div>
-            <h4 className="font-semibold text-slate-900 dark:text-white text-base">
-              No Tickets Found
-            </h4>
-            <p className="text-xs text-slate-400 mt-1 max-w-xs mb-5">
-              {searchQuery || selectedStatus !== "All" || selectedPriority !== "All"
-                ? "Try adjusting your search or filters."
-                : "Create your first ticket to track bugs, tasks, or features."}
-            </p>
-            <button
-              onClick={openCreateModal}
-              className="btn-primary !w-auto !py-2 !px-4 text-xs"
-            >
-              <Plus size={15} />
-              <span>Create Ticket</span>
-            </button>
-          </div>
+        {/* View Mode 1: Interactive Drag and Drop Kanban Board */}
+        {viewMode === "kanban" ? (
+          <KanbanBoard
+            tickets={filteredTickets}
+            onDragEnd={handleDragEnd}
+            onEditTicket={openEditModal}
+            onDeleteTicket={handleDeleteTicket}
+            onNewTicket={(columnStatus) => openCreateModal(columnStatus)}
+          />
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {filteredTickets.map((ticket) => (
-              <TicketCard
-                key={ticket._id}
-                ticket={ticket}
-                onEdit={openEditModal}
-                onDelete={handleDeleteTicket}
-                onStatusChange={handleStatusChange}
-              />
-            ))}
-          </div>
+          /* View Mode 2: Traditional Grid Cards */
+          filteredTickets.length === 0 ? (
+            <div className="card text-center py-16 flex flex-col items-center justify-center border-dashed border-gray-200 dark:border-slate-800">
+              <div className="w-12 h-12 rounded-2xl bg-purple-50 dark:bg-purple-950/40 text-purple-600 dark:text-purple-400 flex items-center justify-center mb-3">
+                <Kanban size={24} />
+              </div>
+              <h4 className="font-semibold text-slate-900 dark:text-white text-base">
+                No Tickets Found
+              </h4>
+              <p className="text-xs text-slate-400 mt-1 max-w-xs mb-5">
+                {searchQuery || selectedStatus !== "All" || selectedPriority !== "All"
+                  ? "Try adjusting your search or filters."
+                  : "Create your first ticket to track bugs, tasks, or features."}
+              </p>
+              <button
+                onClick={() => openCreateModal("To Do")}
+                className="btn-primary !w-auto !py-2 !px-4 text-xs"
+              >
+                <Plus size={15} />
+                <span>Create Ticket</span>
+              </button>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {filteredTickets.map((ticket) => (
+                <TicketCard
+                  key={ticket._id}
+                  ticket={ticket}
+                  onEdit={openEditModal}
+                  onDelete={handleDeleteTicket}
+                  onStatusChange={handleStatusChange}
+                />
+              ))}
+            </div>
+          )
         )}
       </div>
 
