@@ -7,7 +7,7 @@ export default function Breadcrumbs({ items = [] }) {
     <nav className="flex items-center gap-1.5 text-xs text-slate-400 mb-5 flex-wrap">
       <Link
         to="/dashboard"
-        className="flex items-center gap-1 hover:text-purple-600 dark:hover:text-purple-400 transition"
+        className="flex items-center gap-1 hover:text-[#00A0C8] dark:hover:text-[#00A0C8] transition"
       >
         <Home size={13} />
         <span>Home</span>
@@ -26,7 +26,7 @@ export default function Breadcrumbs({ items = [] }) {
             ) : (
               <Link
                 to={item.path}
-                className="hover:text-purple-600 dark:hover:text-purple-400 transition truncate max-w-[150px]"
+                className="hover:text-[#00A0C8] dark:hover:text-[#00A0C8] transition truncate max-w-[150px]"
               >
                 {item.label}
               </Link>

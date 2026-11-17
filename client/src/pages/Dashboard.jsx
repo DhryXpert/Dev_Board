@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import { useToast } from "../context/ToastContext";
 import AppLayout from "../components/AppLayout";
 import Breadcrumbs from "../components/Breadcrumbs";
 import Modal from "../components/Modal";
@@ -21,6 +22,7 @@ import {
 export default function Dashboard() {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const toast = useToast();
 
   const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -66,15 +68,18 @@ export default function Dashboard() {
         setProjects((prev) =>
           prev.map((p) => (p._id === data._id ? data : p))
         );
+        toast.success("Project updated successfully");
       } else {
         const { data } = await API.post("/projects", projectForm);
         setProjects((prev) => [data, ...prev]);
+        toast.success("Project created successfully");
       }
       setIsProjectModalOpen(false);
       setEditingProject(null);
       setProjectForm({ title: "", description: "" });
     } catch (err) {
       setModalError(err.response?.data?.message || "Failed to save project");
+      toast.error(err.response?.data?.message || "Failed to save project");
     } finally {
       setIsSubmitting(false);
     }
@@ -87,8 +92,9 @@ export default function Dashboard() {
     try {
       await API.delete(`/projects/${projectId}`);
       setProjects((prev) => prev.filter((p) => p._id !== projectId));
+      toast.success("Project deleted successfully");
     } catch (err) {
-      alert(err.response?.data?.message || "Failed to delete project");
+      toast.error(err.response?.data?.message || "Failed to delete project");
     }
   };
 
@@ -110,8 +116,10 @@ export default function Dashboard() {
         prev.map((p) => (p._id === data._id ? data : p))
       );
       setMemberEmail("");
+      toast.success("Team member added successfully");
     } catch (err) {
       setModalError(err.response?.data?.message || "Failed to add member");
+      toast.error(err.response?.data?.message || "Failed to add member");
     } finally {
       setIsSubmitting(false);
     }
@@ -127,8 +135,10 @@ export default function Dashboard() {
       setProjects((prev) =>
         prev.map((p) => (p._id === data._id ? data : p))
       );
+      toast.success("Team member removed");
     } catch (err) {
       setModalError(err.response?.data?.message || "Failed to remove member");
+      toast.error(err.response?.data?.message || "Failed to remove member");
     }
   };
 
@@ -159,7 +169,7 @@ export default function Dashboard() {
               setModalError("");
               setIsProjectModalOpen(true);
             }}
-            className="btn-primary !w-auto !py-2.5 !px-4 !my-0 text-xs shadow-md shadow-purple-600/20"
+            className="btn-primary !w-auto !py-2.5 !px-4 !my-0 text-xs shadow-md shadow-[#00A0C8]/20"
           >
             <Plus size={16} />
             <span>New Project</span>
@@ -178,7 +188,7 @@ export default function Dashboard() {
               placeholder="Search projects..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 bg-white dark:bg-[#161620] border border-gray-200 dark:border-slate-800 rounded-xl text-xs text-slate-800 dark:text-slate-200 placeholder:text-slate-400 outline-none focus:border-purple-500 transition"
+              className="w-full pl-10 pr-4 py-2 bg-white dark:bg-[#161620] border border-gray-200 dark:border-slate-800 rounded-xl text-xs text-slate-800 dark:text-slate-200 placeholder:text-slate-400 outline-none focus:border-[#00A0C8] transition"
             />
           </div>
 
@@ -190,12 +200,12 @@ export default function Dashboard() {
         {/* Projects Grid */}
         {loading ? (
           <div className="flex flex-col items-center justify-center py-20 gap-3 text-slate-400">
-            <Loader2 size={28} className="animate-spin text-purple-600" />
+            <Loader2 size={28} className="animate-spin text-[#00A0C8]" />
             <p className="text-xs">Loading projects...</p>
           </div>
         ) : filteredProjects.length === 0 ? (
           <div className="card text-center py-16 flex flex-col items-center justify-center border-dashed border-gray-200 dark:border-slate-800">
-            <div className="w-12 h-12 rounded-2xl bg-purple-50 dark:bg-purple-950/40 text-purple-600 dark:text-purple-400 flex items-center justify-center mb-3">
+            <div className="w-12 h-12 rounded-2xl bg-[#00A0C8]/10 text-[#00A0C8] flex items-center justify-center mb-3">
               <FolderGit2 size={24} />
             </div>
             <h4 className="font-semibold text-slate-900 dark:text-white text-base">
@@ -275,7 +285,7 @@ export default function Dashboard() {
               onChange={(e) =>
                 setProjectForm({ ...projectForm, title: e.target.value })
               }
-              className="w-full bg-slate-100 dark:bg-[#181822] text-slate-900 dark:text-slate-100 border border-slate-200 dark:border-slate-800 rounded-lg px-3.5 py-2.5 text-xs outline-none focus:border-purple-500 transition"
+              className="w-full bg-slate-100 dark:bg-[#181822] text-slate-900 dark:text-slate-100 border border-slate-200 dark:border-slate-800 rounded-lg px-3.5 py-2.5 text-xs outline-none focus:border-[#00A0C8] transition"
             />
           </div>
 
@@ -290,7 +300,7 @@ export default function Dashboard() {
               onChange={(e) =>
                 setProjectForm({ ...projectForm, description: e.target.value })
               }
-              className="w-full bg-slate-100 dark:bg-[#181822] text-slate-900 dark:text-slate-100 border border-slate-200 dark:border-slate-800 rounded-lg px-3.5 py-2.5 text-xs outline-none focus:border-purple-500 transition"
+              className="w-full bg-slate-100 dark:bg-[#181822] text-slate-900 dark:text-slate-100 border border-slate-200 dark:border-slate-800 rounded-lg px-3.5 py-2.5 text-xs outline-none focus:border-[#00A0C8] transition"
             />
           </div>
 
@@ -339,7 +349,7 @@ export default function Dashboard() {
                 placeholder="colleague@example.com"
                 value={memberEmail}
                 onChange={(e) => setMemberEmail(e.target.value)}
-                className="flex-1 bg-slate-100 dark:bg-[#181822] text-slate-900 dark:text-slate-100 border border-slate-200 dark:border-slate-800 rounded-lg px-3.5 py-2 text-xs outline-none focus:border-purple-500 transition"
+                className="flex-1 bg-slate-100 dark:bg-[#181822] text-slate-900 dark:text-slate-100 border border-slate-200 dark:border-slate-800 rounded-lg px-3.5 py-2 text-xs outline-none focus:border-[#00A0C8] transition"
               />
               <button
                 type="submit"
@@ -370,7 +380,7 @@ export default function Dashboard() {
                   className="flex items-center justify-between p-2.5 bg-slate-50 dark:bg-[#181822] rounded-xl border border-slate-100 dark:border-slate-800/80 text-xs"
                 >
                   <div className="flex items-center gap-2.5">
-                    <div className="w-7 h-7 rounded-full bg-purple-100 dark:bg-purple-950/60 text-purple-700 dark:text-purple-300 font-bold flex items-center justify-center text-xs">
+                    <div className="w-7 h-7 rounded-full bg-[#00A0C8]/15 text-[#00A0C8] font-bold flex items-center justify-center text-xs">
                       {member.name?.[0]?.toUpperCase() || "U"}
                     </div>
                     <div>
@@ -383,7 +393,7 @@ export default function Dashboard() {
 
                   <div className="flex items-center gap-2">
                     {isOwner ? (
-                      <span className="text-[10px] font-semibold px-2 py-0.5 rounded bg-purple-50 dark:bg-purple-950/60 text-purple-600 dark:text-purple-400 border border-purple-200 dark:border-purple-800 uppercase">
+                      <span className="text-[10px] font-semibold px-2 py-0.5 rounded bg-[#00A0C8]/10 text-[#00A0C8] border border-[#00A0C8]/30 uppercase">
                         Owner
                       </span>
                     ) : (

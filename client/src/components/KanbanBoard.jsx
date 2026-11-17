@@ -16,9 +16,9 @@ const COLUMNS = [
     id: "In Progress",
     title: "In Progress",
     icon: Clock,
-    color: "text-purple-600 dark:text-purple-400",
-    headerBg: "bg-purple-50/80 dark:bg-purple-950/40",
-    badgeBg: "bg-purple-200/80 dark:bg-purple-900/60 text-purple-700 dark:text-purple-300",
+    color: "text-[#00A0C8]",
+    headerBg: "bg-[#00A0C8]/10",
+    badgeBg: "bg-[#00A0C8]/20 text-[#00A0C8]",
   },
   {
     id: "Done",
@@ -73,7 +73,7 @@ export default function KanbanBoard({
                   <button
                     onClick={() => onNewTicket(column.id)}
                     title={`Add ticket to ${column.title}`}
-                    className="p-1 rounded-lg text-slate-400 hover:text-purple-600 hover:bg-white dark:hover:bg-slate-800 transition cursor-pointer"
+                    className="p-1 rounded-lg text-slate-400 hover:text-[#00A0C8] hover:bg-white dark:hover:bg-slate-800 transition cursor-pointer"
                   >
                     <Plus size={14} />
                   </button>
@@ -88,7 +88,7 @@ export default function KanbanBoard({
                     {...provided.droppableProps}
                     className={`flex-1 rounded-xl transition-colors duration-150 p-1 ${
                       snapshot.isDraggingOver
-                        ? "bg-purple-500/5 dark:bg-purple-500/10 ring-2 ring-purple-500/20 ring-dashed"
+                        ? "bg-[#00A0C8]/5 dark:bg-[#00A0C8]/10 ring-2 ring-[#00A0C8]/20 ring-dashed"
                         : ""
                     }`}
                   >

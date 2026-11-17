@@ -68,7 +68,7 @@ export default function CommentSection({ ticketId }) {
   return (
     <div className="pt-4 mt-4 border-t border-gray-100 dark:border-slate-800">
       <div className="flex items-center gap-2 mb-3">
-        <MessageSquare size={16} className="text-purple-600 dark:text-purple-400" />
+        <MessageSquare size={16} className="text-[#00A0C8]" />
         <h4 className="text-xs font-bold uppercase tracking-wider text-slate-800 dark:text-slate-200">
           Comments ({comments.length})
         </h4>
@@ -89,7 +89,7 @@ export default function CommentSection({ ticketId }) {
             value={newComment}
             onChange={(e) => setNewComment(e.target.value)}
             placeholder="Write a comment or update..."
-            className="w-full bg-slate-50 dark:bg-[#181822] text-slate-900 dark:text-slate-100 border border-slate-200 dark:border-slate-800 rounded-xl p-3 text-xs outline-none focus:border-purple-500 transition resize-none placeholder:text-slate-400"
+            className="w-full bg-slate-50 dark:bg-[#181822] text-slate-900 dark:text-slate-100 border border-slate-200 dark:border-slate-800 rounded-xl p-3 text-xs outline-none focus:border-[#00A0C8] transition resize-none placeholder:text-slate-400"
           />
           <div className="flex justify-end mt-1.5">
             <button
@@ -111,7 +111,7 @@ export default function CommentSection({ ticketId }) {
       {/* Comments List */}
       {loading ? (
         <div className="py-6 flex items-center justify-center text-slate-400 gap-2">
-          <Loader2 size={16} className="animate-spin text-purple-600" />
+          <Loader2 size={16} className="animate-spin text-[#00A0C8]" />
           <span className="text-xs">Loading comments...</span>
         </div>
       ) : comments.length === 0 ? (
@@ -131,7 +131,7 @@ export default function CommentSection({ ticketId }) {
               >
                 <div className="flex items-center justify-between mb-1">
                   <div className="flex items-center gap-2">
-                    <div className="w-5 h-5 rounded-full bg-purple-100 dark:bg-purple-950/60 text-purple-700 dark:text-purple-300 font-bold flex items-center justify-center text-[10px]">
+                    <div className="w-5 h-5 rounded-full bg-[#00A0C8]/15 text-[#00A0C8] font-bold flex items-center justify-center text-[10px]">
                       {comment.user?.name?.[0]?.toUpperCase() || "U"}
                     </div>
                     <span className="font-semibold text-slate-800 dark:text-slate-200">

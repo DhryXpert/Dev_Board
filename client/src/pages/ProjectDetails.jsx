@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import { useToast } from "../context/ToastContext";
 import AppLayout from "../components/AppLayout";
 import Breadcrumbs from "../components/Breadcrumbs";
 import Modal from "../components/Modal";
@@ -27,6 +28,7 @@ export default function ProjectDetails() {
   const { projectId } = useParams();
   const navigate = useNavigate();
   const { user } = useAuth();
+  const toast = useToast();
 
   const [allProjects, setAllProjects] = useState([]);
   const [project, setProject] = useState(null);
@@ -122,6 +124,7 @@ export default function ProjectDetails() {
         setTickets((prev) =>
           prev.map((t) => (t._id === data._id ? data : t))
         );
+        toast.success("Ticket updated successfully");
       } else {
         const { data } = await API.post("/tickets", {
           ...ticketForm,
@@ -129,10 +132,12 @@ export default function ProjectDetails() {
           assignee: ticketForm.assignee || null,
         });
         setTickets((prev) => [data, ...prev]);
+        toast.success("Ticket created successfully");
       }
       setIsTicketModalOpen(false);
     } catch (err) {
       setModalError(err.response?.data?.message || "Failed to save ticket");
+      toast.error(err.response?.data?.message || "Failed to save ticket");
     } finally {
       setIsSubmitting(false);
     }
@@ -168,11 +173,12 @@ export default function ProjectDetails() {
     // 2. Persist status update to backend MongoDB API
     try {
       await API.put(`/tickets/${draggableId}`, { status: targetStatus });
+      toast.info(`Ticket moved to ${targetStatus}`);
     } catch (err) {
       console.error("Failed to persist ticket move", err);
       // Rollback to previous state on failure
       setTickets(previousTickets);
-      alert(err.response?.data?.message || "Failed to update ticket status on server");
+      toast.error(err.response?.data?.message || "Failed to update ticket status on server");
     }
   };
 
@@ -183,8 +189,9 @@ export default function ProjectDetails() {
       setTickets((prev) =>
         prev.map((t) => (t._id === data._id ? data : t))
       );
+      toast.info(`Status changed to ${newStatus}`);
     } catch (err) {
-      alert(err.response?.data?.message || "Failed to update ticket status");
+      toast.error(err.response?.data?.message || "Failed to update ticket status");
     }
   };
 
@@ -201,8 +208,9 @@ export default function ProjectDetails() {
       await API.delete(`/tickets/${deleteTicketId}`);
       setTickets((prev) => prev.filter((t) => t._id !== deleteTicketId));
       setDeleteTicketId(null);
+      toast.success("Ticket deleted successfully");
     } catch (err) {
-      alert(err.response?.data?.message || "Failed to delete ticket");
+      toast.error(err.response?.data?.message || "Failed to delete ticket");
     } finally {
       setIsDeleting(false);
     }
@@ -236,7 +244,7 @@ export default function ProjectDetails() {
   if (loading) {
     return (
       <div className="min-h-screen bg-[#fcfbfc] dark:bg-[#0f0f14] flex items-center justify-center">
-        <Loader2 size={30} className="animate-spin text-purple-600" />
+        <Loader2 size={30} className="animate-spin text-[#00A0C8]" />
       </div>
     );
   }
@@ -265,7 +273,7 @@ export default function ProjectDetails() {
                 </h1>
                 <button
                   onClick={() => openCreateModal("To Do")}
-                  className="btn-primary !w-auto !py-1.5 !px-3 !my-0 text-xs shadow-md shadow-purple-600/20 flex items-center gap-1.5"
+                  className="btn-primary !w-auto !py-1.5 !px-3 !my-0 text-xs shadow-md shadow-[#00A0C8]/20 flex items-center gap-1.5"
                 >
                   <Plus size={14} />
                   <span>New Ticket</span>
@@ -286,8 +294,8 @@ export default function ProjectDetails() {
                 <span className="text-[10px] text-slate-400">To Do</span>
               </div>
 
-              <div className="px-3 py-1.5 rounded-xl bg-purple-50/80 dark:bg-purple-950/40 border border-purple-200 dark:border-purple-900/40 flex items-center gap-2 text-xs text-purple-700 dark:text-purple-300">
-                <Clock size={14} className="text-purple-600" />
+              <div className="px-3 py-1.5 rounded-xl bg-[#00A0C8]/10 border border-[#00A0C8]/30 flex items-center gap-2 text-xs text-[#00A0C8]">
+                <Clock size={14} className="text-[#00A0C8]" />
                 <span className="font-semibold">{inProgressCount}</span>
                 <span className="text-[10px] opacity-80">In Progress</span>
               </div>
@@ -313,7 +321,7 @@ export default function ProjectDetails() {
               placeholder="Search tickets by title or description..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-9 pr-4 py-2 bg-white dark:bg-[#161620] border border-gray-200 dark:border-slate-800 rounded-xl text-xs text-slate-800 dark:text-slate-200 placeholder:text-slate-400 outline-none focus:border-purple-500 transition"
+              className="w-full pl-9 pr-4 py-2 bg-white dark:bg-[#161620] border border-gray-200 dark:border-slate-800 rounded-xl text-xs text-slate-800 dark:text-slate-200 placeholder:text-slate-400 outline-none focus:border-[#00A0C8] transition"
             />
           </div>
 
@@ -324,7 +332,7 @@ export default function ProjectDetails() {
                 onClick={() => setViewMode("kanban")}
                 className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition cursor-pointer ${
                   viewMode === "kanban"
-                    ? "bg-white dark:bg-[#252536] text-purple-600 dark:text-purple-400 shadow-sm"
+                    ? "bg-white dark:bg-[#252536] text-[#00A0C8] shadow-sm"
                     : "text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200"
                 }`}
               >
@@ -335,7 +343,7 @@ export default function ProjectDetails() {
                 onClick={() => setViewMode("grid")}
                 className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition cursor-pointer ${
                   viewMode === "grid"
-                    ? "bg-white dark:bg-[#252536] text-purple-600 dark:text-purple-400 shadow-sm"
+                    ? "bg-white dark:bg-[#252536] text-[#00A0C8] shadow-sm"
                     : "text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200"
                 }`}
               >
@@ -349,7 +357,7 @@ export default function ProjectDetails() {
               <select
                 value={selectedStatus}
                 onChange={(e) => setSelectedStatus(e.target.value)}
-                className="text-xs bg-white dark:bg-[#161620] border border-gray-200 dark:border-slate-800 rounded-xl px-3 py-2 text-slate-700 dark:text-slate-300 outline-none cursor-pointer focus:border-purple-500"
+                className="text-xs bg-white dark:bg-[#161620] border border-gray-200 dark:border-slate-800 rounded-xl px-3 py-2 text-slate-700 dark:text-slate-300 outline-none cursor-pointer focus:border-[#00A0C8]"
               >
                 <option value="All">All Statuses</option>
                 <option value="To Do">To Do</option>
@@ -362,7 +370,7 @@ export default function ProjectDetails() {
             <select
               value={selectedPriority}
               onChange={(e) => setSelectedPriority(e.target.value)}
-              className="text-xs bg-white dark:bg-[#161620] border border-gray-200 dark:border-slate-800 rounded-xl px-3 py-2 text-slate-700 dark:text-slate-300 outline-none cursor-pointer focus:border-purple-500"
+              className="text-xs bg-white dark:bg-[#161620] border border-gray-200 dark:border-slate-800 rounded-xl px-3 py-2 text-slate-700 dark:text-slate-300 outline-none cursor-pointer focus:border-[#00A0C8]"
             >
               <option value="All">All Priorities</option>
               <option value="Low">Low</option>
@@ -375,7 +383,7 @@ export default function ProjectDetails() {
             <select
               value={selectedAssignee}
               onChange={(e) => setSelectedAssignee(e.target.value)}
-              className="text-xs bg-white dark:bg-[#161620] border border-gray-200 dark:border-slate-800 rounded-xl px-3 py-2 text-slate-700 dark:text-slate-300 outline-none cursor-pointer focus:border-purple-500"
+              className="text-xs bg-white dark:bg-[#161620] border border-gray-200 dark:border-slate-800 rounded-xl px-3 py-2 text-slate-700 dark:text-slate-300 outline-none cursor-pointer focus:border-[#00A0C8]"
             >
               <option value="All">All Assignees</option>
               <option value="unassigned">Unassigned</option>
@@ -401,7 +409,7 @@ export default function ProjectDetails() {
           /* View Mode 2: Traditional Grid Cards */
           filteredTickets.length === 0 ? (
             <div className="card text-center py-16 flex flex-col items-center justify-center border-dashed border-gray-200 dark:border-slate-800">
-              <div className="w-12 h-12 rounded-2xl bg-purple-50 dark:bg-purple-950/40 text-purple-600 dark:text-purple-400 flex items-center justify-center mb-3">
+              <div className="w-12 h-12 rounded-2xl bg-[#00A0C8]/10 text-[#00A0C8] flex items-center justify-center mb-3">
                 <Kanban size={24} />
               </div>
               <h4 className="font-semibold text-slate-900 dark:text-white text-base">
@@ -462,7 +470,7 @@ export default function ProjectDetails() {
               onChange={(e) =>
                 setTicketForm({ ...ticketForm, title: e.target.value })
               }
-              className="w-full bg-slate-100 dark:bg-[#181822] text-slate-900 dark:text-slate-100 border border-slate-200 dark:border-slate-800 rounded-lg px-3.5 py-2.5 text-xs outline-none focus:border-purple-500 transition"
+              className="w-full bg-slate-100 dark:bg-[#181822] text-slate-900 dark:text-slate-100 border border-slate-200 dark:border-slate-800 rounded-lg px-3.5 py-2.5 text-xs outline-none focus:border-[#00A0C8] transition"
             />
           </div>
 
@@ -477,7 +485,7 @@ export default function ProjectDetails() {
               onChange={(e) =>
                 setTicketForm({ ...ticketForm, description: e.target.value })
               }
-              className="w-full bg-slate-100 dark:bg-[#181822] text-slate-900 dark:text-slate-100 border border-slate-200 dark:border-slate-800 rounded-lg px-3.5 py-2.5 text-xs outline-none focus:border-purple-500 transition"
+              className="w-full bg-slate-100 dark:bg-[#181822] text-slate-900 dark:text-slate-100 border border-slate-200 dark:border-slate-800 rounded-lg px-3.5 py-2.5 text-xs outline-none focus:border-[#00A0C8] transition"
             />
           </div>
 
@@ -491,7 +499,7 @@ export default function ProjectDetails() {
                 onChange={(e) =>
                   setTicketForm({ ...ticketForm, priority: e.target.value })
                 }
-                className="w-full bg-slate-100 dark:bg-[#181822] text-slate-900 dark:text-slate-100 border border-slate-200 dark:border-slate-800 rounded-lg px-3 py-2 text-xs outline-none focus:border-purple-500 cursor-pointer"
+                className="w-full bg-slate-100 dark:bg-[#181822] text-slate-900 dark:text-slate-100 border border-slate-200 dark:border-slate-800 rounded-lg px-3 py-2 text-xs outline-none focus:border-[#00A0C8] cursor-pointer"
               >
                 <option value="Low">Low</option>
                 <option value="Medium">Medium</option>
@@ -509,7 +517,7 @@ export default function ProjectDetails() {
                 onChange={(e) =>
                   setTicketForm({ ...ticketForm, status: e.target.value })
                 }
-                className="w-full bg-slate-100 dark:bg-[#181822] text-slate-900 dark:text-slate-100 border border-slate-200 dark:border-slate-800 rounded-lg px-3 py-2 text-xs outline-none focus:border-purple-500 cursor-pointer"
+                className="w-full bg-slate-100 dark:bg-[#181822] text-slate-900 dark:text-slate-100 border border-slate-200 dark:border-slate-800 rounded-lg px-3 py-2 text-xs outline-none focus:border-[#00A0C8] cursor-pointer"
               >
                 <option value="To Do">To Do</option>
                 <option value="In Progress">In Progress</option>
@@ -527,7 +535,7 @@ export default function ProjectDetails() {
               onChange={(e) =>
                 setTicketForm({ ...ticketForm, assignee: e.target.value })
               }
-              className="w-full bg-slate-100 dark:bg-[#181822] text-slate-900 dark:text-slate-100 border border-slate-200 dark:border-slate-800 rounded-lg px-3 py-2 text-xs outline-none focus:border-purple-500 cursor-pointer"
+              className="w-full bg-slate-100 dark:bg-[#181822] text-slate-900 dark:text-slate-100 border border-slate-200 dark:border-slate-800 rounded-lg px-3 py-2 text-xs outline-none focus:border-[#00A0C8] cursor-pointer"
             >
               <option value="">Unassigned</option>
               {project?.teamMembers?.map((m) => (

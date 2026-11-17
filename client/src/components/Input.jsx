@@ -13,7 +13,9 @@ export default function Input({
   return (
     <div>
       {label && (
-        <label className="text-xs font-medium text-slate-700">{label}</label>
+        <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 block mb-1">
+          {label}
+        </label>
       )}
 
       <div className="input-box">
@@ -29,7 +31,7 @@ export default function Input({
           <button
             type="button"
             onClick={() => setShowPassword(!showPassword)}
-            className="text-slate-400 hover:text-purple-600 transition cursor-pointer"
+            className="text-slate-400 hover:text-[#00A0C8] transition cursor-pointer"
           >
             {showPassword ? <Eye size={18} /> : <EyeOff size={18} />}
           </button>

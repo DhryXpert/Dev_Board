@@ -97,7 +97,7 @@ export default function Login() {
           Don't have an account?{" "}
           <Link
             to="/register"
-            className="text-purple-600 dark:text-purple-400 hover:text-purple-700 dark:hover:text-purple-300 font-semibold transition"
+            className="text-[#00A0C8] hover:underline font-semibold transition"
           >
             Create an Account
           </Link>

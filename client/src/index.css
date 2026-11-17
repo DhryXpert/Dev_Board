@@ -5,7 +5,8 @@
 
 @theme {
   --font-display: "Poppins", sans-serif;
-  --color-primary: #875cf5;
+  --color-primary: #00A0C8;
+  --color-primary-hover: #0088aa;
 }
 
 @layer base {
@@ -50,13 +51,13 @@
   }
 }
 
-/* Zen Wealth style utility classes with Dark Mode support */
+/* Modern Brand utility classes with #00A0C8 */
 .input-box {
-  @apply w-full flex items-center justify-between gap-3 text-sm text-slate-900 dark:text-slate-100 bg-slate-100 dark:bg-[#181822] rounded-lg px-4 py-3 mb-4 mt-2 border border-slate-200 dark:border-slate-800 outline-none transition focus-within:border-purple-500 focus-within:bg-white dark:focus-within:bg-[#1e1e2c] focus-within:ring-2 focus-within:ring-purple-500/10;
+  @apply w-full flex items-center justify-between gap-3 text-sm text-slate-900 dark:text-slate-100 bg-slate-100 dark:bg-[#181822] rounded-lg px-4 py-3 mb-4 mt-2 border border-slate-200 dark:border-slate-800 outline-none transition focus-within:border-[#00A0C8] focus-within:bg-white dark:focus-within:bg-[#1e1e2c] focus-within:ring-2 focus-within:ring-[#00A0C8]/15;
 }
 
 .btn-primary {
-  @apply w-full text-sm font-medium text-white bg-purple-600 shadow-lg shadow-purple-600/20 p-3 rounded-lg my-2 hover:bg-purple-700 transition cursor-pointer disabled:bg-slate-300 dark:disabled:bg-slate-800 disabled:text-slate-500 disabled:cursor-not-allowed flex items-center justify-center gap-2;
+  @apply w-full text-sm font-medium text-white bg-[#00A0C8] shadow-lg shadow-[#00A0C8]/25 p-3 rounded-lg my-2 hover:bg-[#0088aa] transition cursor-pointer disabled:bg-slate-300 dark:disabled:bg-slate-800 disabled:text-slate-500 disabled:cursor-not-allowed flex items-center justify-center gap-2;
 }
 
 .card {

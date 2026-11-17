@@ -22,7 +22,7 @@ export function PriorityBadge({ priority }) {
 export function StatusBadge({ status }) {
   const styles = {
     "To Do": "bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-700",
-    "In Progress": "bg-purple-50 dark:bg-purple-950/50 text-purple-600 dark:text-purple-400 border-purple-200 dark:border-purple-900/40",
+    "In Progress": "bg-[#00A0C8]/10 text-[#00A0C8] border-[#00A0C8]/30",
     Done: "bg-emerald-50 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-900/40",
   };
 

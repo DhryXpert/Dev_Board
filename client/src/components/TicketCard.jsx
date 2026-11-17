@@ -4,7 +4,7 @@ import { Calendar, Trash2, Edit3, UserCheck, MessageSquare } from "lucide-react"
 
 export default function TicketCard({ ticket, onEdit, onDelete, onStatusChange }) {
   return (
-    <div className="card hover:border-purple-300 dark:hover:border-purple-800 transition-all duration-200 group flex flex-col justify-between">
+    <div className="card hover:border-[#00A0C8]/50 dark:hover:border-[#00A0C8]/50 transition-all duration-200 group flex flex-col justify-between">
       <div>
         {/* Top bar: Priority, Status and Actions */}
         <div className="flex items-center justify-between gap-2 mb-2.5">
@@ -18,7 +18,7 @@ export default function TicketCard({ ticket, onEdit, onDelete, onStatusChange })
               <button
                 onClick={() => onEdit(ticket)}
                 title="Edit Ticket"
-                className="p-1 rounded text-slate-400 hover:text-purple-600 hover:bg-purple-50 dark:hover:bg-slate-800 transition cursor-pointer"
+                className="p-1 rounded text-slate-400 hover:text-[#00A0C8] hover:bg-[#00A0C8]/10 dark:hover:bg-slate-800 transition cursor-pointer"
               >
                 <Edit3 size={13} />
               </button>
@@ -48,7 +48,7 @@ export default function TicketCard({ ticket, onEdit, onDelete, onStatusChange })
       <div className="pt-3 border-t border-gray-100 dark:border-slate-800/80 flex items-center justify-between text-xs">
         {/* Assignee */}
         <div className="flex items-center gap-1.5 text-slate-500 dark:text-slate-400">
-          <div className="w-5 h-5 rounded-full bg-purple-100 dark:bg-purple-950/60 text-purple-700 dark:text-purple-300 font-bold flex items-center justify-center text-[10px]">
+          <div className="w-5 h-5 rounded-full bg-[#00A0C8]/15 text-[#00A0C8] font-bold flex items-center justify-center text-[10px]">
             {ticket.assignee?.name?.[0]?.toUpperCase() || "?"}
           </div>
           <span className="text-[11px] font-medium truncate max-w-[90px]">

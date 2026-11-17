@@ -1,0 +1,78 @@
+import React, { createContext, useContext, useState, useCallback } from "react";
+import { CheckCircle2, AlertCircle, Info, X } from "lucide-react";
+
+const ToastContext = createContext(null);
+
+export const ToastProvider = ({ children }) => {
+  const [toasts, setToasts] = useState([]);
+
+  const addToast = useCallback((message, type = "success", duration = 3500) => {
+    const id = Date.now() + Math.random().toString(36).substring(2, 9);
+    setToasts((prev) => [...prev, { id, message, type }]);
+
+    setTimeout(() => {
+      setToasts((prev) => prev.filter((t) => t.id !== id));
+    }, duration);
+  }, []);
+
+  const removeToast = useCallback((id) => {
+    setToasts((prev) => prev.filter((t) => t.id !== id));
+  }, []);
+
+  const toast = {
+    success: (msg) => addToast(msg, "success"),
+    error: (msg) => addToast(msg, "error"),
+    info: (msg) => addToast(msg, "info"),
+  };
+
+  return (
+    <ToastContext.Provider value={toast}>
+      {children}
+
+      {/* Toast Notification Container */}
+      <div className="fixed bottom-5 right-5 z-50 flex flex-col gap-2.5 max-w-sm w-full pointer-events-none">
+        {toasts.map((item) => (
+          <div
+            key={item.id}
+            className={`pointer-events-auto flex items-center justify-between gap-3 px-4 py-3 rounded-xl shadow-xl border text-xs font-medium animate-in fade-in slide-in-from-bottom-3 duration-200 ${
+              item.type === "success"
+                ? "bg-white dark:bg-[#161622] text-slate-800 dark:text-slate-100 border-emerald-500/30"
+                : item.type === "error"
+                ? "bg-white dark:bg-[#161622] text-slate-800 dark:text-slate-100 border-red-500/30"
+                : "bg-white dark:bg-[#161622] text-slate-800 dark:text-slate-100 border-[#00A0C8]/30"
+            }`}
+          >
+            <div className="flex items-center gap-2.5">
+              {item.type === "success" && (
+                <CheckCircle2 size={16} className="text-emerald-500 shrink-0" />
+              )}
+              {item.type === "error" && (
+                <AlertCircle size={16} className="text-red-500 shrink-0" />
+              )}
+              {item.type === "info" && (
+                <Info size={16} className="text-[#00A0C8] shrink-0" />
+              )}
+              <span>{item.message}</span>
+            </div>
+
+            <button
+              onClick={() => removeToast(item.id)}
+              className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition p-0.5"
+            >
+              <X size={14} />
+            </button>
+          </div>
+        ))}
+      </div>
+    </ToastContext.Provider>
+  );
+};
+
+export const useToast = () => {
+  const context = useContext(ToastContext);
+  if (!context) {
+    throw new Error("useToast must be used within a ToastProvider");
+  }
+  return context;
+};
+
