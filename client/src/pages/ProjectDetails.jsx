@@ -6,6 +6,7 @@ import Breadcrumbs from "../components/Breadcrumbs";
 import Modal from "../components/Modal";
 import TicketCard from "../components/TicketCard";
 import KanbanBoard from "../components/KanbanBoard";
+import CommentSection from "../components/CommentSection";
 import API from "../api/axios";
 import {
   Plus,
@@ -516,6 +517,9 @@ export default function ProjectDetails() {
             </button>
           </div>
         </form>
+
+        {/* Real-time Threaded Comments (for existing tickets) */}
+        {editingTicket && <CommentSection ticketId={editingTicket._id} />}
       </Modal>
     </AppLayout>
   );
