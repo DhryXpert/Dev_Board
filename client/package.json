@@ -12,6 +12,7 @@
   "dependencies": {
     "@hello-pangea/dnd": "^18.0.1",
     "@tailwindcss/vite": "^4.3.5",
+    "@vercel/speed-insights": "^2.1.0",
     "axios": "^1.21.1",
     "lucide-react": "^1.72.0",
     "react": "^19.3.1",
