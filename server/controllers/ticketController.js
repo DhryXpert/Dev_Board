@@ -124,6 +124,18 @@ exports.updateTicket = async (req, res) => {
       return res.status(403).json({ message: "Not authorized to update this ticket" });
     }
 
+    // Authorization: Project owner, ticket creator, assignee, or workspace admin
+    const isOwner = project.owner.equals(req.user._id);
+    const isCreator = ticket.createdBy.equals(req.user._id);
+    const isAssignee = ticket.assignee && ticket.assignee.equals(req.user._id);
+    const isAdmin = req.user.role === "admin";
+
+    if (!isOwner && !isCreator && !isAssignee && !isAdmin) {
+      return res.status(403).json({
+        message: "Only the project owner, ticket creator, or assignee can edit this ticket",
+      });
+    }
+
     if (title !== undefined) ticket.title = title;
     if (description !== undefined) ticket.description = description;
     if (priority !== undefined) ticket.priority = priority;
@@ -158,6 +170,17 @@ exports.assignTicket = async (req, res) => {
       return res.status(403).json({ message: "Not authorized to modify this ticket" });
     }
 
+    // Authorization: Project owner, ticket creator, or workspace admin
+    const isOwner = project.owner.equals(req.user._id);
+    const isCreator = ticket.createdBy.equals(req.user._id);
+    const isAdmin = req.user.role === "admin";
+
+    if (!isOwner && !isCreator && !isAdmin) {
+      return res.status(403).json({
+        message: "Only the project owner or ticket creator can assign users to this ticket",
+      });
+    }
+
     ticket.assignee = assignee || null;
     await ticket.save();
 
@@ -184,6 +207,17 @@ exports.deleteTicket = async (req, res) => {
     const project = await verifyProjectAccess(ticket.projectId, req.user._id);
     if (!project) {
       return res.status(403).json({ message: "Not authorized to delete this ticket" });
+    }
+
+    // Authorization: Only the project owner, ticket creator, or workspace admin can delete
+    const isOwner = project.owner.equals(req.user._id);
+    const isCreator = ticket.createdBy.equals(req.user._id);
+    const isAdmin = req.user.role === "admin";
+
+    if (!isOwner && !isCreator && !isAdmin) {
+      return res.status(403).json({
+        message: "Only the project owner or ticket creator can delete this ticket",
+      });
     }
 
     await Ticket.findByIdAndDelete(req.params.id);

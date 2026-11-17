@@ -7,6 +7,7 @@ import Modal from "../components/Modal";
 import TicketCard from "../components/TicketCard";
 import KanbanBoard from "../components/KanbanBoard";
 import CommentSection from "../components/CommentSection";
+import DeleteAlert from "../components/DeleteAlert";
 import API from "../api/axios";
 import {
   Plus,
@@ -42,6 +43,10 @@ export default function ProjectDetails() {
   const [editingTicket, setEditingTicket] = useState(null);
   const [modalError, setModalError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Delete Alert State (Day 11)
+  const [deleteTicketId, setDeleteTicketId] = useState(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const [ticketForm, setTicketForm] = useState({
     title: "",
@@ -183,15 +188,23 @@ export default function ProjectDetails() {
     }
   };
 
-  // Handle Delete Ticket
-  const handleDeleteTicket = async (ticketId) => {
-    if (!window.confirm("Are you sure you want to delete this ticket?")) return;
+  // Handle Delete Ticket (triggers custom confirmation modal)
+  const openDeleteDialog = (ticketId) => {
+    setDeleteTicketId(ticketId);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!deleteTicketId) return;
+    setIsDeleting(true);
 
     try {
-      await API.delete(`/tickets/${ticketId}`);
-      setTickets((prev) => prev.filter((t) => t._id !== ticketId));
+      await API.delete(`/tickets/${deleteTicketId}`);
+      setTickets((prev) => prev.filter((t) => t._id !== deleteTicketId));
+      setDeleteTicketId(null);
     } catch (err) {
       alert(err.response?.data?.message || "Failed to delete ticket");
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -381,7 +394,7 @@ export default function ProjectDetails() {
             tickets={filteredTickets}
             onDragEnd={handleDragEnd}
             onEditTicket={openEditModal}
-            onDeleteTicket={handleDeleteTicket}
+            onDeleteTicket={openDeleteDialog}
             onNewTicket={(columnStatus) => openCreateModal(columnStatus)}
           />
         ) : (
@@ -414,7 +427,7 @@ export default function ProjectDetails() {
                   key={ticket._id}
                   ticket={ticket}
                   onEdit={openEditModal}
-                  onDelete={handleDeleteTicket}
+                  onDelete={openDeleteDialog}
                   onStatusChange={handleStatusChange}
                 />
               ))}
@@ -546,6 +559,16 @@ export default function ProjectDetails() {
         {/* Real-time Threaded Comments (for existing tickets) */}
         {editingTicket && <CommentSection ticketId={editingTicket._id} />}
       </Modal>
+
+      {/* Delete Confirmation Alert Dialog (Day 11) */}
+      <DeleteAlert
+        isOpen={Boolean(deleteTicketId)}
+        onClose={() => setDeleteTicketId(null)}
+        onConfirm={handleConfirmDelete}
+        title="Delete Ticket"
+        message="Are you sure you want to delete this ticket? All associated comments will also be permanently removed."
+        isDeleting={isDeleting}
+      />
     </AppLayout>
   );
 }
