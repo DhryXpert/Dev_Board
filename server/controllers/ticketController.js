@@ -49,11 +49,12 @@ exports.createTicket = async (req, res) => {
   }
 };
 
-// @desc    Get all tickets for a specific project
+// @desc    Get all tickets for a specific project (with optional query filters: search, status, priority, assignee, sort)
 // @route   GET /api/tickets/project/:projectId
 exports.getTicketsByProject = async (req, res) => {
   try {
     const { projectId } = req.params;
+    const { search, status, priority, assignee, sort } = req.query;
 
     const project = await verifyProjectAccess(projectId, req.user._id);
     if (project === null) {
@@ -63,10 +64,43 @@ exports.getTicketsByProject = async (req, res) => {
       return res.status(403).json({ message: "Not authorized to view tickets for this project" });
     }
 
-    const tickets = await Ticket.find({ projectId })
+    // Build dynamic query
+    const query = { projectId };
+
+    // Status filter
+    if (status && status !== "All") {
+      query.status = status;
+    }
+
+    // Priority filter
+    if (priority && priority !== "All") {
+      query.priority = priority;
+    }
+
+    // Assignee filter: support "unassigned" or specific user ObjectId
+    if (assignee && assignee !== "All") {
+      if (assignee === "unassigned") {
+        query.assignee = null;
+      } else {
+        query.assignee = assignee;
+      }
+    }
+
+    // Keyword search across title and description
+    if (search && search.trim()) {
+      const searchRegex = new RegExp(search.trim(), "i");
+      query.$or = [{ title: searchRegex }, { description: searchRegex }];
+    }
+
+    // Sorting: default newest first (-createdAt)
+    let sortOption = { createdAt: -1 };
+    if (sort === "oldest") sortOption = { createdAt: 1 };
+    if (sort === "priority") sortOption = { priority: -1 };
+
+    const tickets = await Ticket.find(query)
       .populate("assignee", "name email")
       .populate("createdBy", "name email")
-      .sort({ createdAt: -1 });
+      .sort(sortOption);
 
     res.status(200).json(tickets);
   } catch (error) {

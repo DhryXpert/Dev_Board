@@ -34,6 +34,7 @@ export default function ProjectDetails() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedStatus, setSelectedStatus] = useState("All");
   const [selectedPriority, setSelectedPriority] = useState("All");
+  const [selectedAssignee, setSelectedAssignee] = useState("All");
   const [viewMode, setViewMode] = useState("kanban"); // "kanban" or "grid"
 
   // Modal State
@@ -194,16 +195,25 @@ export default function ProjectDetails() {
     }
   };
 
-  // Filtering
+  // Filtering (keyword match on title and description, status, priority, and assignee)
   const filteredTickets = tickets.filter((t) => {
     const matchesSearch =
       t.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       t.description.toLowerCase().includes(searchQuery.toLowerCase());
+
     const matchesStatus =
       selectedStatus === "All" || t.status === selectedStatus;
+
     const matchesPriority =
       selectedPriority === "All" || t.priority === selectedPriority;
-    return matchesSearch && matchesStatus && matchesPriority;
+
+    const matchesAssignee =
+      selectedAssignee === "All" ||
+      (selectedAssignee === "unassigned" && !t.assignee) ||
+      t.assignee?._id === selectedAssignee ||
+      t.assignee === selectedAssignee;
+
+    return matchesSearch && matchesStatus && matchesPriority && matchesAssignee;
   });
 
   const todoCount = tickets.filter((t) => t.status === "To Do").length;
@@ -346,6 +356,21 @@ export default function ProjectDetails() {
               <option value="Medium">Medium</option>
               <option value="High">High</option>
               <option value="Critical">Critical</option>
+            </select>
+
+            {/* Assignee Filter */}
+            <select
+              value={selectedAssignee}
+              onChange={(e) => setSelectedAssignee(e.target.value)}
+              className="text-xs bg-white dark:bg-[#161620] border border-gray-200 dark:border-slate-800 rounded-xl px-3 py-2 text-slate-700 dark:text-slate-300 outline-none cursor-pointer focus:border-purple-500"
+            >
+              <option value="All">All Assignees</option>
+              <option value="unassigned">Unassigned</option>
+              {project?.teamMembers?.map((m) => (
+                <option key={m._id} value={m._id}>
+                  {m.name}
+                </option>
+              ))}
             </select>
           </div>
         </div>
